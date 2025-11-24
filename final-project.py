@@ -54,10 +54,14 @@ def haversine_km(lat1, lon1, lat2, lon2, radius_km=6371.0):
     return radius_km * 2 * math.asin(math.sqrt(a))
 
 # #[FUNCRETURN2]
-def compute_min_max_distance(distances):
-    if not distances:
-        return 0, 0
-    return min(distances), max(distances)
+def get_country_min_max(counts_df):
+    if counts_df.empty:
+        return None, None
+    max_row = counts_df.iloc[0]
+    min_row = counts_df.iloc[-1]
+    max_info = (max_row["country_name"], max_row["airport_count"])
+    min_info = (min_row["country_name"], min_row["airport_count"])
+    return max_info, min_info
 
 # #[LAMBDA]
 def add_large_flag(df):
@@ -207,11 +211,13 @@ def main():
         with col1:
             st.subheader("Counts by Country")
             st.dataframe(counts)
-            # #[MAXMIN]
-            maxr = counts.iloc[0]
-            minr = counts.iloc[-1]
-            st.write(f"Highest: {maxr['country_name']} ({maxr['airport_count']})")
-            st.write(f"Lowest: {minr['country_name']} ({minr['airport_count']})")
+            # #[MAXMIN] and #[FUNCRETURN2]
+            max_info, min_info = get_country_min_max(counts)
+            if max_info and min_info:
+                max_country, max_count = max_info
+                min_country, min_count = min_info
+                st.write(f"Highest: {max_country} ({max_count})")
+                st.write(f"Lowest: {min_country} ({min_count})")
 
         with col2:
             st.subheader("Top 15 Countries")
